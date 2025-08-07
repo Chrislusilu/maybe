@@ -12,12 +12,12 @@
   </defs>
   
   <!-- Main rounded rectangle background -->
-  <rect x="10" y="15" width="80" height="70" rx="15" ry="15" fill="url(#bgGradient)" />
+  <rect x="8" y="15" width="84" height="70" rx="15" ry="15" fill="url(#bgGradient)" />
   
-  <!-- Letter "B" -->
-  <text x="25" y="65" font-family="Arial, sans-serif" font-size="45" font-weight="bold" fill="url(#textGradient)">B</text>
+  <!-- Letter "B" for Budgy -->
+  <text x="18" y="65" font-family="Arial, sans-serif" font-size="38" font-weight="bold" fill="url(#textGradient)">B</text>
   
   <!-- "AI" badge -->
-  <rect x="60" y="65" width="30" height="20" rx="5" ry="5" fill="#FF5252" />
-  <text x="75" y="78" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white" text-anchor="middle">AI</text>
+  <rect x="62" y="65" width="26" height="18" rx="4" ry="4" fill="#FF5252" />
+  <text x="75" y="77" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white" text-anchor="middle">AI</text>
 </svg>
