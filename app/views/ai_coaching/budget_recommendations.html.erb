@@ -1,0 +1,170 @@
+<% content_for :title, "Budget Recommendations" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Your Personalized Budget Options</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+      Choose the budget approach that fits your financial personality and goals
+    </p>
+  </div>
+
+  <% if @recommendations.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <% @recommendations.each do |recommendation| %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border <%= recommendation.is_active? ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-200 dark:border-gray-700' %> p-6">
+          <div class="text-center mb-6">
+            <div class="flex items-center justify-center mb-3">
+              <% case recommendation.recommendation_type %>
+              <% when 'conservative' %>
+                <%= icon("shield", class: "w-8 h-8 text-blue-500") %>
+              <% when 'balanced' %>
+                <%= icon("scale", class: "w-8 h-8 text-green-500") %>
+              <% when 'aggressive' %>
+                <%= icon("trending-up", class: "w-8 h-8 text-purple-500") %>
+              <% end %>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white capitalize">
+              <%= recommendation.recommendation_type %>
+            </h3>
+            <% if recommendation.is_active? %>
+              <span class="inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mt-2">
+                Active Plan
+              </span>
+            <% end %>
+          </div>
+
+          <!-- Budget Allocation Visualization -->
+          <div class="mb-6">
+            <div class="space-y-4">
+              <!-- Mandatory -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Mandatory</span>
+                  <span class="text-sm font-bold text-gray-900 dark:text-white"><%= recommendation.mandatory_allocation.round %>%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div class="bg-red-500 h-3 rounded-full" style="width: <%= recommendation.mandatory_allocation %>%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Rent, utilities, debt payments</p>
+              </div>
+
+              <!-- Desires -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Desires</span>
+                  <span class="text-sm font-bold text-gray-900 dark:text-white"><%= recommendation.desires_allocation.round %>%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div class="bg-yellow-500 h-3 rounded-full" style="width: <%= recommendation.desires_allocation %>%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Entertainment, dining, hobbies</p>
+              </div>
+
+              <!-- Investments -->
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Investments</span>
+                  <span class="text-sm font-bold text-gray-900 dark:text-white"><%= recommendation.investment_allocation.round %>%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                  <div class="bg-green-500 h-3 rounded-full" style="width: <%= recommendation.investment_allocation %>%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Savings, retirement, stocks</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rationale -->
+          <div class="mb-6">
+            <p class="text-sm text-gray-600 dark:text-gray-300">
+              <%= recommendation.rationale %>
+            </p>
+          </div>
+
+          <!-- Confidence Score -->
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">AI Confidence</span>
+              <span class="text-sm font-bold text-gray-900 dark:text-white"><%= recommendation.confidence_score.round %>%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full" style="width: <%= recommendation.confidence_score %>%"></div>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="text-center">
+            <% if recommendation.is_active? %>
+              <span class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-md font-medium">
+                Currently Active
+              </span>
+            <% else %>
+              <%= button_to "Adopt This Budget", adopt_budget_path(recommendation), 
+                  method: :post,
+                  class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md font-medium transition-colors",
+                  data: { confirm: "Are you sure you want to adopt this budget plan?" } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Detailed Category Breakdown -->
+    <% if @active_recommendation&.category_breakdown&.any? %>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          Detailed Category Breakdown - <%= @active_recommendation.recommendation_type.capitalize %> Plan
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <% @active_recommendation.category_breakdown.each do |category, percentage| %>
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-md">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
+                <%= category.humanize %>
+              </span>
+              <span class="text-sm font-bold text-gray-900 dark:text-white">
+                <%= percentage.round(1) %>%
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+  <% else %>
+    <!-- No Recommendations State -->
+    <div class="text-center py-12">
+      <div class="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-6">
+        <%= icon("calculator", class: "w-12 h-12 text-gray-400") %>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+        No Budget Recommendations Yet
+      </h2>
+      <p class="text-gray-600 dark:text-gray-300 mb-6 max-w-md mx-auto">
+        We need to analyze your financial personality first to provide personalized budget recommendations.
+      </p>
+      <div class="space-x-4">
+        <%= link_to "Analyze My Personality", ai_coaching_personality_analysis_path, 
+            class: "inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium transition-colors" %>
+        <% if Current.user.financial_personality&.analysis_current? %>
+          <%= button_to "Generate Recommendations", ai_coaching_regenerate_budget_recommendations_path, 
+              method: :post,
+              class: "inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium transition-colors" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Tips Section -->
+  <div class="mt-8 bg-blue-50 dark:bg-blue-900 rounded-lg p-6">
+    <h3 class="text-lg font-semibold text-blue-900 dark:text-blue-100 mb-3">
+      💡 Budget Tips
+    </h3>
+    <ul class="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+      <li>• <strong>Conservative:</strong> Best for debt payoff and building emergency funds</li>
+      <li>• <strong>Balanced:</strong> Good mix of security and growth for most people</li>
+      <li>• <strong>Aggressive:</strong> Maximize wealth building if you have high income stability</li>
+      <li>• You can always adjust your budget as your situation changes</li>
+      <li>• The AI will learn from your spending patterns and improve recommendations over time</li>
+    </ul>
+  </div>
+</div>

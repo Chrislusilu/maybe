@@ -1,0 +1,310 @@
+<% content_for :title, "AI Financial Coach" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Your AI Financial Coach</h1>
+    <p class="mt-2 text-lg text-gray-600 dark:text-gray-300">
+      Personalized guidance to help you build better money habits
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Daily Check-in -->
+      <% if @daily_checkin %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex items-center mb-4">
+            <%= icon("sun", class: "w-6 h-6 text-yellow-500 mr-3") %>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Daily Check-in</h2>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 mb-4"><%= @daily_checkin.ai_response %></p>
+          <div class="flex space-x-3">
+            <%= button_to "👍", ai_coaching_session_feedback_path(@daily_checkin), 
+                params: { rating: 5 }, method: :post, 
+                class: "text-green-600 hover:text-green-700 text-lg" %>
+            <%= button_to "👎", ai_coaching_session_feedback_path(@daily_checkin), 
+                params: { rating: 2 }, method: :post, 
+                class: "text-red-600 hover:text-red-700 text-lg" %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Spending Insights -->
+      <% if @spending_insights.any? %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <%= icon("lightbulb", class: "w-6 h-6 text-blue-500 mr-3") %>
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">New Insights</h2>
+            </div>
+            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+              <%= @spending_insights.count %> new
+            </span>
+          </div>
+          
+          <div class="space-y-4">
+            <% @spending_insights.each do |insight| %>
+              <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="font-medium text-gray-900 dark:text-white capitalize">
+                      <%= insight.pattern_type.humanize %>
+                      <% if insight.emotional_context %>
+                        <span class="text-sm text-gray-500">(<%= insight.emotional_context.humanize %>)</span>
+                      <% end %>
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-300 mt-1"><%= insight.ai_recommendation %></p>
+                    <p class="text-xs text-gray-400 mt-2">
+                      Confidence: <%= insight.confidence_score.round %>%
+                    </p>
+                  </div>
+                  <%= link_to "Acknowledge", acknowledge_insight_path(insight), 
+                      method: :patch, 
+                      class: "text-blue-600 hover:text-blue-700 text-sm font-medium" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Recent Coaching Sessions -->
+      <% if @recent_sessions.any? %>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Recent Coaching</h2>
+          <div class="space-y-4">
+            <% @recent_sessions.each do |session| %>
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <% case session.session_type %>
+                  <% when 'daily_checkin' %>
+                    <%= icon("sun", class: "w-5 h-5 text-yellow-500") %>
+                  <% when 'crisis_intervention' %>
+                    <%= icon("alert-triangle", class: "w-5 h-5 text-red-500") %>
+                  <% when 'goal_review' %>
+                    <%= icon("target", class: "w-5 h-5 text-green-500") %>
+                  <% else %>
+                    <%= icon("message-circle", class: "w-5 h-5 text-blue-500") %>
+                  <% end %>
+                </div>
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-gray-900 dark:text-white">
+                    <%= session.session_type.humanize %>
+                  </p>
+                  <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    <%= truncate(session.ai_response, length: 100) %>
+                  </p>
+                  <p class="text-xs text-gray-400 mt-1">
+                    <%= time_ago_in_words(session.created_at) %> ago
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Personality Profile -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Financial Personality</h3>
+        <% if @personality %>
+          <div class="space-y-3">
+            <div>
+              <span class="text-sm font-medium text-gray-500">Type:</span>
+              <p class="text-gray-900 dark:text-white capitalize">
+                <%= @personality.personality_type.humanize %>
+              </p>
+            </div>
+            <div>
+              <span class="text-sm font-medium text-gray-500">Risk Tolerance:</span>
+              <div class="flex items-center mt-1">
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: <%= @personality.risk_tolerance * 10 %>%"></div>
+                </div>
+                <span class="ml-2 text-sm text-gray-600"><%= @personality.risk_tolerance %>/10</span>
+              </div>
+            </div>
+            <div>
+              <span class="text-sm font-medium text-gray-500">Discipline Level:</span>
+              <div class="flex items-center mt-1">
+                <div class="flex-1 bg-gray-200 rounded-full h-2">
+                  <div class="bg-green-600 h-2 rounded-full" style="width: <%= @personality.discipline_level * 10 %>%"></div>
+                </div>
+                <span class="ml-2 text-sm text-gray-600"><%= @personality.discipline_level %>/10</span>
+              </div>
+            </div>
+          </div>
+          <%= link_to "View Details", ai_coaching_personality_analysis_path, 
+              class: "mt-4 inline-block text-blue-600 hover:text-blue-700 text-sm font-medium" %>
+        <% else %>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Let's analyze your spending patterns to understand your financial personality.
+          </p>
+          <%= link_to "Analyze My Personality", ai_coaching_personality_analysis_path, 
+              class: "inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors" %>
+        <% end %>
+      </div>
+
+      <!-- Active Budget -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Your Budget</h3>
+        <% if @active_budget %>
+          <div class="space-y-3">
+            <div class="text-center">
+              <span class="inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full mb-2">
+                <%= @active_budget.recommendation_type.capitalize %> Plan
+              </span>
+            </div>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Mandatory:</span>
+                <span class="text-sm font-medium"><%= @active_budget.mandatory_allocation.round %>%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Desires:</span>
+                <span class="text-sm font-medium"><%= @active_budget.desires_allocation.round %>%</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-sm text-gray-600">Investments:</span>
+                <span class="text-sm font-medium"><%= @active_budget.investment_allocation.round %>%</span>
+              </div>
+            </div>
+          </div>
+          <%= link_to "View Budget Options", ai_coaching_budget_recommendations_path, 
+              class: "mt-4 inline-block text-blue-600 hover:text-blue-700 text-sm font-medium" %>
+        <% else %>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">
+            Get personalized budget recommendations based on your financial personality.
+          </p>
+          <%= link_to "Get Budget Recommendations", ai_coaching_budget_recommendations_path, 
+              class: "inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors" %>
+        <% end %>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
+        <div class="space-y-3">
+          <button onclick="requestPurchaseGuidance()" 
+                  class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors">
+            💰 Get Purchase Guidance
+          </button>
+          <button onclick="requestCrisisHelp()" 
+                  class="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors">
+            🚨 Crisis Intervention
+          </button>
+          <%= link_to ai_coaching_budget_recommendations_path, 
+              class: "block w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors" do %>
+            📊 Review Budget Options
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase Guidance Modal -->
+<div id="purchaseGuidanceModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+  <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+    <div class="mt-3">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Purchase Guidance</h3>
+      <form id="purchaseGuidanceForm">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount ($)</label>
+          <input type="number" id="purchaseAmount" step="0.01" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+          <input type="text" id="purchaseCategory" 
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">How are you feeling?</label>
+          <select id="emotionalContext" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">Select...</option>
+            <option value="happy">Happy</option>
+            <option value="stressed">Stressed</option>
+            <option value="bored">Bored</option>
+            <option value="anxious">Anxious</option>
+            <option value="excited">Excited</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button" onclick="closePurchaseGuidance()" 
+                  class="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Get Guidance
+          </button>
+        </div>
+      </form>
+      <div id="guidanceResponse" class="hidden mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-md">
+        <p id="guidanceText" class="text-gray-700 dark:text-gray-300"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function requestPurchaseGuidance() {
+  document.getElementById('purchaseGuidanceModal').classList.remove('hidden');
+}
+
+function closePurchaseGuidance() {
+  document.getElementById('purchaseGuidanceModal').classList.add('hidden');
+  document.getElementById('guidanceResponse').classList.add('hidden');
+}
+
+function requestCrisisHelp() {
+  const amount = prompt('How much did you spend that concerns you?');
+  if (amount) {
+    fetch('/ai_coaching/crisis_intervention', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ spending_amount: parseFloat(amount) })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.intervention);
+    });
+  }
+}
+
+document.getElementById('purchaseGuidanceForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const amount = document.getElementById('purchaseAmount').value;
+  const category = document.getElementById('purchaseCategory').value;
+  const emotional = document.getElementById('emotionalContext').value;
+  
+  fetch('/ai_coaching/purchase_guidance', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({
+      amount: parseFloat(amount),
+      category: category,
+      emotional_context: emotional
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    document.getElementById('guidanceText').textContent = data.guidance;
+    document.getElementById('guidanceResponse').classList.remove('hidden');
+  });
+});
+</script>
