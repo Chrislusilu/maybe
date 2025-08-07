@@ -1,0 +1,23 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1565C0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1565C0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0D47A1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main rounded rectangle background -->
+  <rect x="10" y="15" width="80" height="70" rx="15" ry="15" fill="url(#bgGradient)" />
+  
+  <!-- Letter "B" -->
+  <text x="25" y="65" font-family="Arial, sans-serif" font-size="45" font-weight="bold" fill="url(#textGradient)">B</text>
+  
+  <!-- "AI" badge -->
+  <rect x="60" y="65" width="30" height="20" rx="5" ry="5" fill="#FF5252" />
+  <text x="75" y="78" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="white" text-anchor="middle">AI</text>
+</svg>
